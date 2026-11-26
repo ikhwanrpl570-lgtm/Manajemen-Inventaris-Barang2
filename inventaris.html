@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Inventaris Barang Sekolah</title>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eef2f4;--sf:#fff;--tx:#14262b;--mu:#5d7278;--ln:#d5dfe2;--pr:#0f6b6b;--prt:#fff;--wa:#b4570a;--wab:#fdf0e1;--er:#b3261e;--ok:#1f7a4d;--okb:#e3f4ea;--erb:#fde8e6;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#0f1a1d;--sf:#172428;--tx:#e6f0f2;--mu:#8ea5ab;--ln:#2a3d42;--pr:#4fc1b9;--prt:#06201f;--wa:#f0a45d;--wab:#3a2a17;--er:#ff8a80;--ok:#6fd3a0;--okb:#17342a;--erb:#3d1f1c}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#0f1a1d;--sf:#172428;--tx:#e6f0f2;--mu:#8ea5ab;--ln:#2a3d42;--pr:#4fc1b9;--prt:#06201f;--wa:#f0a45d;--wab:#3a2a17;--er:#ff8a80;--ok:#6fd3a0;--okb:#17342a;--erb:#3d1f1c}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:400 15px/1.5 Figtree,system-ui,sans-serif}
+.wrap{max-width:1000px;margin:0 auto;padding:24px 16px 48px}
+h1{font-size:28px;font-weight:800;margin:0 0 4px;letter-spacing:-.02em}
+.sub{color:var(--mu);margin:0 0 20px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:16px}
+.st{background:var(--sf);border:1px solid var(--ln);border-radius:10px;padding:12px 14px}
+.st b{display:block;font-size:24px;font-weight:800}
+.st span{color:var(--mu);font-size:13px}
+.alert{background:var(--wab);color:var(--wa);border:1px solid var(--wa);border-radius:10px;padding:12px 14px;margin-bottom:16px;font-weight:600}
+.alert ul{margin:6px 0 0;padding-left:18px;font-weight:400}
+.bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+input,select{font:inherit;color:var(--tx);background:var(--sf);border:1px solid var(--ln);border-radius:8px;padding:9px 11px;min-width:0}
+input:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid var(--pr);outline-offset:2px}
+#q{flex:1 1 220px}
+button{font:inherit;font-weight:600;cursor:pointer;border-radius:8px;border:1px solid var(--ln);background:var(--sf);color:var(--tx);padding:9px 14px}
+button.p{background:var(--pr);color:var(--prt);border-color:var(--pr)}
+button.d{color:var(--er)}
+.tw{overflow-x:auto;background:var(--sf);border:1px solid var(--ln);border-radius:10px}
+table{width:100%;border-collapse:collapse;min-width:640px}
+th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--ln)}
+th{font-size:13px;color:var(--mu);font-weight:600}
+tr:last-child td{border-bottom:0}
+td.n{font-variant-numeric:tabular-nums}
+.tag{display:inline-block;padding:2px 9px;border-radius:99px;font-size:12.5px;font-weight:600}
+.Baik{background:var(--okb);color:var(--ok)}.Rusak-Ringan{background:var(--wab);color:var(--wa)}.Rusak-Berat{background:var(--erb);color:var(--er)}
+.low{color:var(--wa);font-weight:800}
+td.a{white-space:nowrap}td.a button{padding:5px 10px;font-size:13px}
+.empty{padding:28px;text-align:center;color:var(--mu)}
+dialog{border:1px solid var(--ln);border-radius:12px;background:var(--sf);color:var(--tx);padding:20px;width:min(440px,94vw)}
+dialog::backdrop{background:rgba(0,0,0,.45)}
+dialog h2{margin:0 0 12px;font-size:19px}
+label{display:block;font-size:13px;color:var(--mu);margin:10px 0 3px}
+dialog input,dialog select{width:100%}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.err{color:var(--er);font-size:13px;min-height:18px;margin-top:8px}
+.ft{display:flex;justify-content:flex-end;gap:8px;margin-top:10px}
+.rep h3{margin:14px 0 6px;font-size:14px;color:var(--mu)}
+.rep table{min-width:0}
+#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--tx);color:var(--bg);padding:9px 16px;border-radius:8px;opacity:0;pointer-events:none;transition:opacity .2s}
+#toast.on{opacity:1}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Inventaris Barang Sekolah</h1>
+  <p class="sub">Catat, cari, dan pantau stok barang milik sekolah.</p>
+
+  <div class="stats" id="stats"></div>
+  <div id="alert"></div>
+
+  <div class="bar">
+    <input id="q" type="search" placeholder="Cari kode, nama, atau kategori" aria-label="Cari barang">
+    <select id="fk" aria-label="Filter kondisi"><option value="">Semua kondisi</option><option>Baik</option><option>Rusak Ringan</option><option>Rusak Berat</option></select>
+    <button class="p" id="add">Tambah barang</button>
+    <button id="rep">Laporan</button>
+  </div>
+
+  <div class="tw"><table>
+    <thead><tr><th>Kode</th><th>Nama barang</th><th>Kategori</th><th>Stok</th><th>Min.</th><th>Kondisi</th><th></th></tr></thead>
+    <tbody id="tb"></tbody>
+  </table><div class="empty" id="empty" hidden>Belum ada barang yang cocok. Klik “Tambah barang” untuk mulai mencatat.</div></div>
+</div>
+
+<dialog id="dlg">
+  <h2 id="dt">Tambah barang</h2>
+  <label for="kode">Kode barang</label><input id="kode" placeholder="mis. ELK-001">
+  <label for="nama">Nama barang</label><input id="nama" placeholder="mis. Proyektor">
+  <label for="kat">Kategori</label><input id="kat" list="kats" placeholder="mis. Elektronik"><datalist id="kats"></datalist>
+  <div class="row">
+    <div><label for="stok">Stok</label><input id="stok" type="number" min="0" value="1"></div>
+    <div><label for="min">Stok minimum</label><input id="min" type="number" min="0" value="2"></div>
+  </div>
+  <label for="kon">Kondisi</label><select id="kon"><option>Baik</option><option>Rusak Ringan</option><option>Rusak Berat</option></select>
+  <div class="err" id="err" role="alert"></div>
+  <div class="ft"><button id="cancel">Batal</button><button class="p" id="save">Simpan</button></div>
+</dialog>
+
+<dialog id="rd"><h2>Laporan inventaris</h2><div class="rep" id="rb"></div><div class="ft"><button id="rc">Tutup</button></div></dialog>
+<div id="toast" role="status"></div>
+
+<script>
+const KEY='inventaris-sekolah-v1';
+const seed=[
+ {id:1,kode:'ELK-001',nama:'Proyektor',kat:'Elektronik',stok:4,min:2,kon:'Baik'},
+ {id:2,kode:'MBL-001',nama:'Kursi siswa',kat:'Mebel',stok:120,min:30,kon:'Baik'},
+ {id:3,kode:'ATK-001',nama:'Spidol papan tulis',kat:'Alat tulis',stok:3,min:10,kon:'Baik'},
+ {id:4,kode:'ELK-002',nama:'Kabel HDMI',kat:'Elektronik',stok:6,min:3,kon:'Rusak Ringan'},
+ {id:5,kode:'OLR-001',nama:'Bola voli',kat:'Olahraga',stok:2,min:4,kon:'Rusak Berat'}];
+let data=load(),editId=null;
+function load(){try{const r=localStorage.getItem(KEY);if(r){const v=JSON.parse(r);if(Array.isArray(v))return v}}catch(e){}return seed.slice()}
+function persist(){try{localStorage.setItem(KEY,JSON.stringify(data))}catch(e){}}
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const low=b=>b.stok<=b.min;
+function toast(m){const t=$('toast');t.textContent=m;t.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('on'),2000)}
+
+function render(){
+  const q=$('q').value.trim().toLowerCase(),fk=$('fk').value;
+  const rows=data.filter(b=>(!fk||b.kon===fk)&&(!q||[b.kode,b.nama,b.kat].some(x=>x.toLowerCase().includes(q))));
+  $('tb').innerHTML=rows.map(b=>`<tr><td>${esc(b.kode)}</td><td>${esc(b.nama)}</td><td>${esc(b.kat)}</td>
+   <td class="n ${low(b)?'low':''}">${b.stok}${low(b)?' ⚠':''}</td><td class="n">${b.min}</td>
+   <td><span class="tag ${b.kon.replace(' ','-')}">${b.kon}</span></td>
+   <td class="a"><button data-e="${b.id}">Ubah</button> <button class="d" data-d="${b.id}">Hapus</button></td></tr>`).join('');
+  $('empty').hidden=rows.length>0;
+  const lows=data.filter(low);
+  $('stats').innerHTML=[['Jenis barang',data.length],['Total stok',data.reduce((s,b)=>s+b.stok,0)],['Stok menipis',lows.length],['Kondisi rusak',data.filter(b=>b.kon!=='Baik').length]]
+    .map(([l,v])=>`<div class="st"><b>${v}</b><span>${l}</span></div>`).join('');
+  $('alert').innerHTML=lows.length?`<div class="alert">Stok minimum tercapai untuk ${lows.length} barang:<ul>${lows.map(b=>`<li>${esc(b.nama)} — sisa ${b.stok} (minimum ${b.min})</li>`).join('')}</ul></div>`:'';
+  $('kats').innerHTML=[...new Set(data.map(b=>b.kat))].map(k=>`<option value="${esc(k)}">`).join('');
+}
+
+function openForm(b){
+  editId=b?b.id:null;$('dt').textContent=b?'Ubah barang':'Tambah barang';$('err').textContent='';
+  $('kode').value=b?b.kode:'';$('nama').value=b?b.nama:'';$('kat').value=b?b.kat:'';
+  $('stok').value=b?b.stok:1;$('min').value=b?b.min:2;$('kon').value=b?b.kon:'Baik';
+  $('dlg').showModal();$('kode').focus();
+}
+function save(){
+  const b={kode:$('kode').value.trim(),nama:$('nama').value.trim(),kat:$('kat').value.trim(),stok:parseInt($('stok').value,10),min:parseInt($('min').value,10),kon:$('kon').value};
+  if(!b.kode||!b.nama||!b.kat){$('err').textContent='Isi kode, nama, dan kategori barang.';return}
+  if(!(b.stok>=0)||!(b.min>=0)){$('err').textContent='Stok dan stok minimum harus berupa angka 0 atau lebih.';return}
+  if(data.some(x=>x.kode.toLowerCase()===b.kode.toLowerCase()&&x.id!==editId)){$('err').textContent='Kode barang sudah dipakai. Gunakan kode lain.';return}
+  if(editId){data=data.map(x=>x.id===editId?{...x,...b}:x);toast('Barang diubah')}
+  else{data.push({id:Date.now(),...b});toast('Barang ditambahkan')}
+  persist();$('dlg').close();render();
+}
+$('add').onclick=()=>openForm();
+$('cancel').onclick=()=>$('dlg').close();
+$('save').onclick=save;
+$('dlg').addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.tagName!=='BUTTON'){e.preventDefault();save()}});
+$('tb').onclick=e=>{
+  const ed=e.target.dataset.e,de=e.target.dataset.d;
+  if(ed)openForm(data.find(b=>b.id==ed));
+  if(de){const b=data.find(x=>x.id==de);if(confirm(`Hapus "${b.nama}"?`)){data=data.filter(x=>x.id!=de);persist();render();toast('Barang dihapus')}}
+};
+$('q').oninput=render;$('fk').onchange=render;
+
+$('rep').onclick=()=>{
+  const by=(f)=>{const m={};data.forEach(b=>{m[b[f]]=(m[b[f]]||0)+1;});return m};
+  const kat={};data.forEach(b=>{kat[b.kat]=(kat[b.kat]||0)+b.stok});
+  const tbl=(h,o)=>`<table><thead><tr><th>${h[0]}</th><th>${h[1]}</th></tr></thead><tbody>${Object.entries(o).map(([k,v])=>`<tr><td>${esc(k)}</td><td class="n">${v}</td></tr>`).join('')}</tbody></table>`;
+  const lows=data.filter(low);
+  $('rb').innerHTML=`<p>Dicatat: ${data.length} jenis barang, total stok ${data.reduce((s,b)=>s+b.stok,0)}.</p>
+   <h3>Total stok per kategori</h3>${tbl(['Kategori','Stok'],kat)}
+   <h3>Jumlah barang per kondisi</h3>${tbl(['Kondisi','Jenis'],by('kon'))}
+   <h3>Perlu diisi ulang</h3>${lows.length?tbl(['Barang','Sisa stok'],Object.fromEntries(lows.map(b=>[b.nama,b.stok]))):'<p>Semua stok masih di atas minimum.</p>'}`;
+  $('rd').showModal();
+};
+$('rc').onclick=()=>$('rd').close();
+render();
+</script>
+</body>
+</html>
